@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Joynal Ali</title>
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="favicon.png" />
+<style>
+/* ── RESET ─────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background:#f8f6f1;
+  color:#1c1a17;
+  line-height:1.8;
+  overflow-x:hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+
+/* ── TREE SVG BACKGROUND ───────────────── */
+#tree-bg{
+  position:fixed;top:0;right:0;
+  width:42vw;height:100vh;
+  pointer-events:none;z-index:0;
+  opacity:1;
+}
+#tree-bg svg{width:100%;height:100%}
+
+/* ── TOP NAVIGATION BAR ────────────────── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5vw;
+  z-index: 50;
+  background: rgba(248, 246, 241, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #ddd8cf;
+}
+.topbar-brand {
+  display: flex;
+  flex-direction: column;
+}
+.topbar-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+  color: #1c1a17;
+}
+.topbar-role {
+  font-size: .72rem;
+  font-weight: 300;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #7a7060;
+  margin-top: .2rem;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+nav ul li a {
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #7a7060;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+  transition: color .2s;
+  cursor: pointer;
+}
+nav ul li a::after {
+  content: '';
+  width: 0;
+  height: 2px;
+  background: #bfb9ae;
+  transition: width .25s, background .2s;
+}
+nav ul li a:hover, nav ul li a.active { color: #1c1a17; }
+nav ul li a:hover::after, nav ul li a.active::after { width: 100%; background: #1c1a17; }
+
+/* ── MAIN CONTENT ──────────────────────── */
+main {
+  margin-left: 0;
+  padding-top: 5rem; /* Space for fixed topbar */
+  flex: 1; /* Pushes footer to the bottom */
+  position: relative;
+  z-index: 10;
+}
+
+/* ── SECTIONS ──────────────────────────── */
+section {
+  padding: 5rem 5vw;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  display: none; /* Hidden by default for SPA navigation */
+  animation: fadeIn 0.4s ease forwards;
+}
+section.active {
+  display: block; /* Shown when active */
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── EYEBROW / LABEL ───────────────────── */
+.eyebrow {
+  font-size: .65rem;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: #9a9080;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.eyebrow::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: #c8c2b8; }
+
+/* ── HERO ──────────────────────────────── */
+#about { display: none; flex-direction: column; justify-content: center; }
+#about.active { display: flex; } /* Override default block for #about */
+.hero-layout { display: grid; grid-template-columns: 1fr 190px; gap: 4rem; align-items: start; margin-bottom: 3rem; }
+.hero-name {
+  font-size: clamp(2rem, 3.5vw, 3rem); /* Smaller font size */
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: #1c1a17;
+  margin-bottom: 1.2rem;
+}
+.hero-sub {
+  font-size: .8rem;
+  font-weight: 300;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #9a9080;
+  margin-bottom: 2.5rem;
+}
+.hero-sub b { color: #6b5c3e; font-weight: 500; }
+
+.about-photo-wrap { position: relative; }
+.about-photo-wrap img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 2px;
+}
+.photo-rule {
+  position: absolute; top: -8px; left: -8px; right: 8px; bottom: 8px;
+  border: 1px solid #c8c2b8;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* epigraph */
+.epigraph {
+  border-left: 2px solid #6b5c3e;
+  padding: .8rem 1.4rem;
+  margin: 1.8rem 0 2rem;
+  background: #f0ebe2;
+}
+.epigraph p {
+  font-style: italic;
+  font-size: 1rem;
+  color: #3a3228;
+  line-height: 1.65;
+  margin: 0;
+}
+.body-text p {
+  font-size: 1rem;
+  color: #3d3830;
+  margin-bottom: 1rem;
+  max-width: 60ch;
+}
+.body-text p:last-child { margin-bottom: 0; }
+
+/* ── RESEARCH ──────────────────────────── */
+.pub-item { padding: 2rem 0; border-bottom: 1px solid #e6e0d6; }
+.pub-item:last-child { border-bottom: none; }
+.pub-tag {
+  font-size: .63rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #9a9080;
+  margin-bottom: .5rem;
+}
+.pub-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #1c1a17;
+  line-height: 1.45;
+  margin-bottom: .5rem;
+}
+.pub-detail {
+  font-style: italic;
+  font-size: .9rem;
+  color: #7a7060;
+  line-height: 1.6;
+}
+.pub-link {
+  display: inline-flex; align-items: center; gap: .4rem;
+  margin-top: .8rem;
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6b5c3e;
+  border-bottom: 1px solid #6b5c3e;
+  padding-bottom: 1px;
+  transition: opacity .2s;
+}
+.pub-link:hover { opacity: .65; }
+
+/* ── CONFERENCES ───────────────────────── */
+.conf-table { width: 100%; border-collapse: collapse; }
+.conf-table tr { border-bottom: 1px solid #e6e0d6; }
+.conf-table tr:last-child { border-bottom: none; }
+.conf-table td { padding: 1.3rem 0; vertical-align: top; }
+.conf-table td:first-child {
+  font-size: .72rem;
+  color: #9a9080;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  padding-right: 2rem;
+  padding-top: 1.45rem;
+  width: 110px;
+}
+.conf-name {
+  font-size: .97rem;
+  font-weight: 700;
+  color: #1c1a17;
+  margin-bottom: .3rem;
+}
+.conf-paper {
+  font-style: italic;
+  font-size: .88rem;
+  color: #3d3830;
+  margin: .2rem 0 .4rem;
+  line-height: 1.5;
+}
+.conf-venue { font-size: .72rem; color: #9a9080; }
+.conf-venue a { color: #9a9080; border-bottom: 1px solid #c8c2b8; }
+.badge {
+  display: inline-block;
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 2px;
+  margin-left: .5rem;
+  vertical-align: middle;
+}
+.badge-pres { background: #e8e0d4; color: #6b5c3e; }
+.badge-upcoming { background: #1c1a17; color: #f8f6f1; }
+.badge-att { background: #eae6e0; color: #9a9080; }
+
+/* ── CV ────────────────────────────────── */
+.cv-section-title {
+  font-size: .63rem;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #9a9080;
+  margin: 2.5rem 0 .6rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid #ddd8cf;
+}
+.cv-section-title:first-child { margin-top: 0; }
+.cv-row { display: grid; grid-template-columns: 110px 1fr; gap: 1.5rem; padding: .9rem 0; border-bottom: 1px solid #eee8df; }
+.cv-row:last-child { border-bottom: none; }
+.cv-date { font-size: .72rem; color: #9a9080; padding-top: .18rem; }
+.cv-title { font-size: .97rem; font-weight: 700; color: #1c1a17; margin-bottom: .15rem; }
+.cv-inst { font-size: .75rem; color: #7a7060; }
+.cv-link { color: #6b5c3e; border-bottom: 1px solid #c8b89a; }
+
+/* languages */
+.lang-row { display: flex; flex-wrap: wrap; gap: 1.5rem 3rem; margin-top: .8rem; }
+.lang-item { display: flex; flex-direction: column; gap: .15rem; }
+.lang-name-l { font-size: .97rem; font-weight: 700; color: #1c1a17; }
+.lang-lvl { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: #9a9080; }
+.lang-bar { display: flex; gap: 3px; margin-top: 4px; }
+.lang-bar span { display: block; width: 20px; height: 2px; background: #ddd8cf; border-radius: 1px; }
+.lang-bar span.on { background: #6b5c3e; }
+
+/* ── CONTACT ───────────────────────────── */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.contact-group { display: flex; flex-direction: column; gap: 1.6rem; }
+.c-label { font-size: .63rem; letter-spacing: .15em; text-transform: uppercase; color: #9a9080; margin-bottom: .2rem; }
+.c-val { font-size: .97rem; color: #1c1a17; }
+.c-val a { border-bottom: 1px solid #c8c2b8; transition: border-color .2s; }
+.c-val a:hover { border-color: #6b5c3e; }
+address.c-val { font-style: normal; line-height: 1.75; }
+
+/* Social Icons */
+.social-icons {
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0.8rem;
+}
+.social-icons a {
+  color: #7a7060;
+  transition: color 0.2s, transform 0.2s;
+  border-bottom: none;
+}
+.social-icons a:hover {
+  color: #1c1a17;
+  transform: translateY(-2px);
+}
+
+/* ── FOOTER ────────────────────────────── */
+footer {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 5vw;
+  display: flex;
+  justify-content: flex-end; /* Aligns content to the right */
+  align-items: center;
+  border-top: 1px solid #ddd8cf;
+  font-size: .7rem;
+  color: #9a9080;
+  letter-spacing: .05em;
+  position: relative;
+  z-index: 10;
+}
+footer a {
+  color: #9a9080;
+  transition: color 0.2s;
+}
+footer a:hover {
+  color: #1c1a17;
+}
+
+/* ── RESPONSIVE ────────────────────────── */
+@media(max-width:860px){
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.5rem;
+  }
+  nav ul {
+    margin-top: 1rem;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+  section { padding: 4rem 1.5rem 3rem; }
+  .hero-layout{grid-template-columns:1fr;gap:2rem}
+  .about-photo-wrap{max-width:160px}
+  .contact-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  #tree-bg { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TREE BACKGROUND ─────────────────── -->
+<div id="tree-bg" aria-hidden="true"></div>
+
+<!-- ── TOP NAVIGATION ──────────────────── -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-name">Joynal Ali</div>
+    <div class="topbar-role">Linguist · IIT Delhi</div>
+  </div>
+  <nav>
+    <ul>
+      <li><a href="#about" class="active">About</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#conferences">Conferences</a></li>
+      <li><a href="#cv">CV</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!-- ── MAIN ────────────────────────────── -->
+<main>
+
+  <!-- ABOUT -->
+  <section id="about" class="active">
+    <div class="hero-layout">
+      <div>
+        <div class="hero-sub">PhD Scholar &middot; <b>Linguistics</b> &middot; IIT Delhi</div>
+        <h1 class="hero-name">
+          Joynal Ali
+        </h1>
+        <div class="epigraph">
+          <p>Language is so embedded into the ordinary life that its feat of computation is often unnoticed- a silent architecture the mind/brain builds and processes before even the utterance ends.</p>
+        </div>
+      </div>
+      <div class="about-photo-wrap">
+        <div class="photo-rule"></div>
+        <!-- IMPORTANT: Ensure this filename perfectly matches the one you upload to GitHub -->
+        <img src="personal website.jpg" alt="Joynal Ali"/>
+      </div>
+    </div>
+    <div class="body-text">
+      <p>My research focuses on the interaction of syntax with discourse. I am particularly interested in discourse particles, allocutive &amp; phi-feature agreements, the functional projection HonP, negation, and the linguistic phenomena that offer a window into the architecture of the left periphery to study how human language encodes contextual information in the structure.</p>
+      
+      <p>My broader theoretical interests are in the working of the computational mechanisms and devises of Grammar, which would answer questions in the understanding of the language faculty of human mind/brain.</p>
+      
+      <p>I joined IIT Delhi in 2024 as a doctoral researcher with <a href="https://hss.iitd.ac.in/faculty/deepak-alok" target="_blank" style="border-bottom:1px solid #c8b89a;color:#6b5c3e">Deepak Alok</a> as my supervisor in the Department of Humanities and Social Sciences. My dissertation investigates the syntax of discourse in Karbi Hills (a Trans-Himalayan language) and Assamese (an Indo-Aryan language), spoken primarily in North-East India.</p>
+    </div>
+  </section>
+
+  <!-- RESEARCH -->
+  <section id="research">
+    <div class="eyebrow">Research &amp; Publications</div>
+    <div class="pub-item">
+      <div class="pub-tag">2026 &middot; Proceedings &middot; FASAL-15</div>
+      <div class="pub-title">Honorificity and Number Features are Distinct Processes: A Case of Honorificity and Plurality in Assamese Pronouns</div>
+      <div class="pub-detail"><em>Proceedings of FASAL-15 (Formal Approaches to South Asian Languages)</em>. Eds. Sampada Deshpande, Ahmad Jabbar, Jonathan Paramore &amp; Shaunak Phadnis. University of Texas at Austin, April 2025.</div>
+      <a class="pub-link" href="https://ojs.ub.uni-konstanz.de/jsal/index.php/fasal/en/issue/view/35" target="_blank" rel="noopener">View in FASAL-15 Proceedings &nearr;</a>
+    </div>
+  </section>
+
+  <!-- CONFERENCES -->
+  <section id="conferences">
+    <div class="eyebrow">Conferences &amp; Schools</div>
+    <table class="conf-table">
+      <tbody>
+        <tr>
+          <td>Oct&ndash;Nov 2026</td>
+          <td>
+            <div class="conf-name">HLS-29 &mdash; Himalayan Language Symposium <span class="badge badge-upcoming">Upcoming Paper</span></div>
+            <div class="conf-paper">&ldquo;Allocutivity Below NegP: The Karbi Addressee Honorific Marker -ik and the Architecture of the Speech-Act Domain&rdquo;</div>
+            <div class="conf-venue">IIT Delhi &middot; <a href="https://hls29.iitd.ac.in" target="_blank">hls29.iitd.ac.in</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td>Jun 2026</td>
+          <td>
+            <div class="conf-name">LISSIM-12 &mdash; Linguistics Summer School in the Indian Mountains <span class="badge badge-att">Participant</span></div>
+            <div class="conf-venue">IIT Delhi, Sonipat Campus &middot; <a href="https://lissim12.iitd.ac.in" target="_blank">lissim12.iitd.ac.in</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td>Apr 2025</td>
+          <td>
+            <div class="conf-name">FASAL-15 &mdash; Formal Approaches to South Asian Languages <span class="badge badge-pres">Poster</span></div>
+            <div class="conf-paper">&ldquo;Honorificity and Number Features are Distinct Processes: A Case of Honorificity and Plurality in Assamese Pronouns&rdquo;</div>
+            <div class="conf-venue">University of Texas at Austin &middot; Online</div>
+          </td>
+        </tr>
+        <tr>
+          <td>Dec 2024</td>
+          <td>
+            <div class="conf-name">SALA-38 &mdash; South Asian Languages Analysis Roundtable <span class="badge badge-pres">Paper</span></div>
+            <div class="conf-paper">&ldquo;Classifiers, Numerals, and their Interaction in the Karbi Language&rdquo;</div>
+            <div class="conf-venue">Nagaland University &middot; <a href="https://sala-38.nagalanduniversity.ac.in/" target="_blank">sala-38.nagalanduniversity.ac.in</a></div>
+          </td>
+        </tr>
+        <tr>
+          <td>Mar 2024</td>
+          <td>
+            <div class="conf-name">NCLL-2024 &mdash; National Conference on Language and Linguistics <span class="badge badge-pres">Poster</span></div>
+            <div class="conf-paper">&ldquo;Causativization in Assamese, Punjabi, and Tutsa: A Typological Study&rdquo;</div>
+            <div class="conf-venue">Tezpur University, Assam</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CV -->
+  <section id="cv">
+    <div class="eyebrow">Curriculum Vitae</div>
+
+    <div class="cv-section-title">Education</div>
+    <div class="cv-row">
+      <div class="cv-date">2024 &ndash; present</div>
+      <div>
+        <div class="cv-title">PhD, Linguistics</div>
+        <div class="cv-inst">Indian Institute of Technology Delhi</div>
+      </div>
+    </div>
+    <div class="cv-row">
+      <div class="cv-date">2022 &ndash; 2024</div>
+      <div>
+        <div class="cv-title">M.A. in Linguistics and Language Technology</div>
+        <div class="cv-inst">Tezpur University, Tezpur, Assam</div>
+      </div>
+    </div>
+    <div class="cv-row">
+      <div class="cv-date">2019 &ndash; 2024</div>
+      <div>
+        <div class="cv-title">B.A. in English Literature</div>
+        <div class="cv-inst">The Assam Royal Global University, Guwahati, Assam</div>
+      </div>
+    </div>
+
+    <div class="cv-section-title">Academic Service</div>
+    <div class="cv-row">
+      <div class="cv-date">Oct&ndash;Nov 2026</div>
+      <div>
+        <div class="cv-title">Organising Committee &mdash; HLS-29</div>
+        <div class="cv-inst">Himalayan Language Symposium 29 &middot; IIT Delhi &middot; <a class="cv-link" href="https://hls29.iitd.ac.in" target="_blank">hls29.iitd.ac.in</a></div>
+      </div>
+    </div>
+    <div class="cv-row">
+      <div class="cv-date">Dec 2025</div>
+      <div>
+        <div class="cv-title">Organising Committee &mdash; DIPSAL 2025</div>
+        <div class="cv-inst">Discourse Particles in South Asian Languages &middot; IIT Delhi &middot; <a class="cv-link" href="https://sites.google.com/view/dipsal/home" target="_blank">dipsal/home</a></div>
+      </div>
+    </div>
+    <div class="cv-row">
+      <div class="cv-date">Mar 2024</div>
+      <div>
+        <div class="cv-title">Organising Committee &mdash; NCLL-2024</div>
+        <div class="cv-inst">National Conference on Language and Linguistics &middot; Tezpur University &middot; <a class="cv-link" href="https://www.tezu.ernet.in/event/2024/CONCEPTNOTE_ncll2024.pdf" target="_blank">Conference Note &nearr;</a></div>
+      </div>
+    </div>
+    <div class="cv-row">
+      <div class="cv-date">Mar 2023</div>
+      <div>
+        <div class="cv-title">Organising Committee &mdash; NCLL-2023</div>
+        <div class="cv-inst">National Conference on Language and Linguistics &middot; Tezpur University &middot; <a class="cv-link" href="https://www.tezu.ernet.in/event/2023/Conference_LLT.pdf" target="_blank">Conference Note &nearr;</a></div>
+      </div>
+    </div>
+
+    <div class="cv-section-title">Languages</div>
+    <div class="lang-row">
+      <div class="lang-item"><span class="lang-name-l">Assamese</span><span class="lang-lvl">Native</span><div class="lang-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div></div>
+      <div class="lang-item"><span class="lang-name-l">Bangla</span><span class="lang-lvl">Native</span><div class="lang-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div></div>
+      <div class="lang-item"><span class="lang-name-l">English</span><span class="lang-lvl">Fluent</span><div class="lang-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div></div>
+      <div class="lang-item"><span class="lang-name-l">Hindi</span><span class="lang-lvl">Fluent</span><div class="lang-bar"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div></div>
+      <div class="lang-item"><span class="lang-name-l">Arabic</span><span class="lang-lvl">Reading</span><div class="lang-bar"><span class="on"></span><span class="on"></span><span></span><span></span><span></span></div></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="eyebrow">Contact</div>
+    <div class="contact-grid">
+      <div class="contact-group">
+        <div class="contact-item">
+          <div class="c-label">Email</div>
+          <div class="c-val"><a href="mailto:joynal.ali@hss.iitd.ac.in">joynal.ali@hss.iitd.ac.in</a></div>
+        </div>
+        <div class="contact-item">
+          <div class="c-label">Profiles</div>
+          <div class="social-icons">
+            <!-- Google Scholar -->
+            <a href="https://scholar.google.com/citations?user=NjY24vkAAAAJ" target="_blank" rel="noopener" title="Google Scholar">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/>
+              </svg>
+            </a>
+            <!-- ORCID -->
+            <a href="https://orcid.org/0009-0000-0861-2763" target="_blank" rel="noopener" title="ORCID">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 0 1-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.444h2.297c3.272 0 4.022-2.484 4.022-3.722 0-2.016-1.284-3.722-4.097-3.722h-2.222z"/>
+              </svg>
+            </a>
+            <!-- LinkedIn -->
+            <a href="https://linkedin.com/in/joynal-ali-3882362a3" target="_blank" rel="noopener" title="LinkedIn">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="contact-group">
+        <div class="contact-item">
+          <div class="c-label">Address</div>
+          <address class="c-val">
+            Department of Humanities and Social Sciences, 5th Floor, Main Building,<br>
+            Indian Institute of Technology Delhi<br>
+            Hauz Khas, New Delhi &ndash; 110016<br>India
+          </address>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span><a href="mailto:joynal.ali@hss.iitd.ac.in">joynal.ali@hss.iitd.ac.in</a></span>
+</footer>
+
+<script>
+// ── SINGLE PAGE APPLICATION (SPA) NAVIGATION ────────────
+const navLinks = document.querySelectorAll('nav a');
+const sections = document.querySelectorAll('section');
+
+function navigateTo(hash) {
+  if (!hash) hash = '#about';
+  
+  // Update nav links active state
+  navLinks.forEach(link => {
+    if (link.getAttribute('href') === hash) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+
+  // Show the target section, hide the rest
+  sections.forEach(sec => {
+    if ('#' + sec.id === hash) {
+      sec.classList.add('active');
+    } else {
+      sec.classList.remove('active');
+    }
+  });
+  
+  // Scroll to top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Handle clicks on navigation links
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const hash = link.getAttribute('href');
+    history.pushState(null, null, hash);
+    navigateTo(hash);
+  });
+});
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', () => {
+  navigateTo(window.location.hash);
+});
+
+// Initial load mapping
+navigateTo(window.location.hash || '#about');
+
+// ── SYNTAX TREE BACKGROUND ──────────────────────────────
+// Lightweight SVG trees: rendered once on right side, swap on scroll
+(function () {
+  if (window.innerWidth < 861) return;
+
+  const TREES = [
+    { label: 'SAP', nodes: [
+        { l: 'SAP',         x: .50, y: .05 },
+        { l: 'SA',          x: .25, y: .18 },
+        { l: 'SpeakerP',    x: .12, y: .34 },
+        { l: 'AddresseeP',  x: .38, y: .34 },
+        { l: 'CP',          x: .74, y: .18 },
+        { l: "C [+hon]",    x: .58, y: .34 },
+        { l: 'TP',          x: .88, y: .34 },
+        { l: 'DP',          x: .78, y: .50 },
+        { l: "T′",          x: .95, y: .50 },
+        { l: 'T',           x: .86, y: .66 },
+        { l: 'vP',          x: .99, y: .66 },
+      ],
+      edges: [[0,1],[0,4],[1,2],[1,3],[4,5],[4,6],[6,7],[6,8],[8,9],[8,10]]
+    },
+    { label: 'HonP', nodes: [
+        { l: 'HonP',        x: .50, y: .05 },
+        { l: 'Spec',        x: .26, y: .20 },
+        { l: '[Allocutee]', x: .15, y: .38 },
+        { l: "Hon′",        x: .70, y: .20 },
+        { l: "Hon° [+hon]", x: .54, y: .38 },
+        { l: 'TP',          x: .86, y: .38 },
+        { l: 'DP',          x: .74, y: .56 },
+        { l: "T′",          x: .96, y: .56 },
+        { l: 'vP',          x: .84, y: .72 },
+        { l: 'T [tns]',     x: .99, y: .72 },
+      ],
+      edges: [[0,1],[0,3],[1,2],[3,4],[3,5],[5,6],[5,7],[7,8],[7,9]]
+    },
+    { label: 'CP', nodes: [
+        { l: 'CP',          x: .50, y: .05 },
+        { l: 'Spec',        x: .26, y: .22 },
+        { l: "C′",          x: .70, y: .22 },
+        { l: 'C [+Q]',      x: .54, y: .40 },
+        { l: 'TP',          x: .84, y: .40 },
+        { l: 'DP',          x: .70, y: .58 },
+        { l: "T′",          x: .96, y: .58 },
+        { l: 'T',           x: .82, y: .74 },
+        { l: 'vP',          x: .99, y: .74 },
+      ],
+      edges: [[0,1],[0,2],[2,3],[2,4],[4,5],[4,6],[6,7],[6,8]]
+    },
+    { label: 'vP (caus)', nodes: [
+        { l: 'vP',          x: .50, y: .08 },
+        { l: 'DP [agent]',  x: .24, y: .26 },
+        { l: "v′",          x: .72, y: .26 },
+        { l: "v° [+caus]",  x: .52, y: .46 },
+        { l: 'VP',          x: .88, y: .46 },
+        { l: "V°",          x: .70, y: .66 },
+        { l: 'DP [theme]',  x: .98, y: .66 },
+      ],
+      edges: [[0,1],[0,2],[2,3],[2,4],[4,5],[4,6]]
+    },
+    { label: 'TP (ECM)', nodes: [
+        { l: 'TP',          x: .50, y: .04 },
+        { l: 'DPᵢ',         x: .26, y: .20 },
+        { l: "T′",          x: .70, y: .20 },
+        { l: 'T [ECM]',     x: .52, y: .38 },
+        { l: 'VP',          x: .84, y: .38 },
+        { l: "V°",          x: .64, y: .56 },
+        { l: 'TP',          x: .94, y: .56 },
+        { l: 'DPᵢ',         x: .78, y: .72 },
+        { l: "T′",          x: .98, y: .72 },
+        { l: 'T [+inf]',    x: .86, y: .86 },
+        { l: 'vP',          x: .99, y: .86 },
+      ],
+      edges: [[0,1],[0,2],[2,3],[2,4],[4,5],[4,6],[6,7],[6,8],[8,9],[8,10]]
+    }
+  ];
+
+  const bg = document.getElementById('tree-bg');
+  let current = Math.floor(Math.random() * TREES.length);
+  let svgEl = null;
+
+  function getBox() {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const bw = W * 0.34;
+    const bh = H * 0.82;
+    const bx = W * 0.64;
+    const by = H * 0.08;
+    return { bx, by, bw, bh, W, H };
+  }
+
+  function nodePos(n, box) {
+    return {
+      x: box.bx + n.x * box.bw,
+      y: box.by + n.y * box.bh
+    };
+  }
+
+  function buildSVG(tree) {
+    const box = getBox();
+    const W = box.W, H = box.H;
+    const LINE = 'rgba(107,92,62,0.22)';
+    const TEXT = 'rgba(61,52,43,0.30)';
+    const DOT  = 'rgba(107,92,62,0.25)';
+
+    let edgesHTML = '';
+    tree.edges.forEach(([a, b]) => {
+      const pa = nodePos(tree.nodes[a], box);
+      const pb = nodePos(tree.nodes[b], box);
+      edgesHTML += `<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${LINE}" stroke-width="1"/>`;
+    });
+
+    let nodesHTML = '';
+    tree.nodes.forEach(n => {
+      const p = nodePos(n, box);
+      nodesHTML += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.2" fill="${DOT}"/>`;
+      nodesHTML += `<text x="${p.x.toFixed(1)}" y="${(p.y - 7).toFixed(1)}" text-anchor="middle" font-family="system-ui, sans-serif" font-style="italic" font-size="12.5" fill="${TEXT}">${n.l}</text>`;
+    });
+
+    return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%">
+      ${edgesHTML}${nodesHTML}
+    </svg>`;
+  }
+
+  function renderTree(tree, fadeIn) {
+    bg.innerHTML = buildSVG(tree);
+    const svg = bg.querySelector('svg');
+    svg.style.opacity = '0';
+    svg.style.transition = `opacity ${fadeIn}s ease`;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { svg.style.opacity = '1'; });
+    });
+  }
+
+  renderTree(TREES[current], 1.6);
+
+  let scrollTimer = null;
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const dy = Math.abs(window.scrollY - lastScrollY);
+    lastScrollY = window.scrollY;
+    if (dy < 80) return;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      current = (current + 1) % TREES.length;
+      renderTree(TREES[current], 1.2);
+    }, 120);
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth < 861) { bg.innerHTML = ''; return; }
+    renderTree(TREES[current], 0.3);
+  });
+})();
+</script>
+</body>
+</html>
